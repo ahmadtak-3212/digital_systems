@@ -1,0 +1,4 @@
+work/
+obj_dir/
+*.txt
+fir.sv

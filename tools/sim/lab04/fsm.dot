@@ -1,0 +1,23 @@
+digraph fsm {
+  graph [rankdir=TB, fontname="DejaVu Sans", fontsize=13, nodesep=0.5, ranksep=0.9, pad=0.3, label="Lab 4 anti-theft FSM (anti_theft_fsm.sv). Reset or reprogram returns to ARMED.", labelloc=t];
+  node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=12, fillcolor="#eef4fb", color="#2c5d8f", penwidth=1.6];
+  edge [fontname="DejaVu Sans", fontsize=10, color="#444444"];
+  armed [label="ARMED", fillcolor="#fde8e6", color="#c0392b"];
+  triggered [label="TRIGGERED\ncountdown running"];
+  sound [label="SOUND ALARM\nsiren on", fillcolor="#f9d0cb", color="#c0392b"];
+  soundc [label="SOUND ALARM\ndoors closed\nsiren on", fillcolor="#f9d0cb", color="#c0392b"];
+  disarmed [label="DISARMED", fillcolor="#e6f4ea", color="#2e7d32"];
+  dopen [label="DISARMED\ndriver door open", fillcolor="#e6f4ea", color="#2e7d32"];
+  dclose [label="DISARMED\ndriver door closed\narm countdown", fillcolor="#e6f4ea", color="#2e7d32"];
+  armed -> triggered [label="driver door\n(T_DRIVER_DELAY)"];
+  armed -> triggered [label="passenger door\n(T_PASSENGER_DELAY)"];
+  armed -> disarmed [label="ignition on"];
+  triggered -> disarmed [label="ignition on"];
+  triggered -> sound [label="timer expired"];
+  sound -> disarmed [label="ignition on"];
+  sound -> soundc [label="all doors closed\n(start T_ALARM_ON)"];
+  soundc -> armed [label="timer expired"];
+  disarmed -> dopen [label="ignition off and\ndriver door opens"];
+  dopen -> dclose [label="driver door closes\n(start T_ARM_DELAY)"];
+  dclose -> armed [label="timer expired"];
+}
