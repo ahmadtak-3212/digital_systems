@@ -1,0 +1,145 @@
+`default_nettype none
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 10/10/2021 02:26:00 PM
+// Design Name: 
+// Module Name: fuel_pump_logic
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+module top_level(input wire clk_100mhz, 
+					input wire [15:0] sw, 
+					input wire btnc, btnu, btnl, btnd, btnr,
+					output logic [1:0] led, 
+					output logic ca,cb,cc,cd,ce,cf,cg, 
+					output logic [7:0] an,  
+					output logic ja,
+					output logic[3:0] vga_r,
+                    output logic[3:0] vga_b,
+                    output logic[3:0] vga_g,
+                    output logic vga_hs,
+                    output logic vga_vs
+                    );
+	parameter ONE_HZ_PERIOD = 25_000_000;
+	parameter DEBOUNCE_COUNT = 1000000;
+	parameter LOW_FREQ = 28409; //corresponds to 440hz
+	parameter HIGH_FREQ = 14205; //corresponds to 880hz
+    ///////////////////////////////////////////////////////////////
+    // LOGICS
+    //////////////////////////////////////////////////////////////
+    logic clk_25mhz;
+    logic reset;
+    assign reset = sw[15];
+    
+    //Buttons
+    logic reprogram;
+    logic h_switch;
+    logic br_switch;
+    logic dr_switch;
+    logic p_switch;
+    
+    //Switches
+    logic ig_switch;
+    assign ig_switch = sw[14];
+    logic [1:0] time_param;
+    assign time_param = sw[5:4];
+    logic [3:0] time_value;
+    assign time_value = sw[3:0];
+    
+    //Multiplexer
+    logic status_light;
+    
+    //Audio
+    logic audio_signal; //used for audio generation (you control with siren generator)
+    logic alarm;
+    
+    // FSM
+    logic start_timer, status;
+    logic [1:0] interval;
+    logic [2:0] state;
+    
+    //Fuel Pump
+     logic fuel_pump_led;
+     
+    //Timings
+    logic [3:0] time_value_output, count;     
+    logic expired_pulse, counting, one_hz; 
+    
+    //7 Seg
+    logic [6:0] cat;
+    logic [31:0] data;
+         
+    //Clock IN
+     clk_25Mhz new_clk(.clk_in1(clk_100mhz), 
+        .clk_out1(clk_25mhz));
+    
+    //debounce instances:
+	debounce #(.DEBOUNCE_COUNT(DEBOUNCE_COUNT)) db_reprogram  (.reset_in(reset), .clock_in(clk_25mhz), .noisy_in(btnc),
+	   .clean_out(reprogram));
+	debounce #(.DEBOUNCE_COUNT(DEBOUNCE_COUNT)) db_h_switch   (.reset_in(reset), .clock_in(clk_25mhz), .noisy_in(btnu),
+	   .clean_out(h_switch));
+	debounce #(.DEBOUNCE_COUNT(DEBOUNCE_COUNT)) db_br_switch  (.reset_in(reset), .clock_in(clk_25mhz), .noisy_in(btnd),
+	   .clean_out(br_switch));
+	debounce #(.DEBOUNCE_COUNT(DEBOUNCE_COUNT)) db_dr_switch  (.reset_in(reset), .clock_in(clk_25mhz), .noisy_in(btnl),
+	   .clean_out(dr_switch));
+    debounce #(.DEBOUNCE_COUNT(DEBOUNCE_COUNT)) db_p_switch   (.reset_in (reset), .clock_in(clk_25mhz), .noisy_in(btnr),
+        .clean_out(p_switch));
+        
+    //Time Parameter:
+    time_parameter time1 (.clock_in(clk_25mhz),.reset_in(reset),.reprogram_in(reprogram), .interval_in(interval), .time_parameter_selector_in(time_param), .time_value_in(time_value),
+         .time_value_out(time_value_output));
+    
+    //Timer:
+	timer #(.ONE_HZ_PERIOD(ONE_HZ_PERIOD)) time2 (.clock_in(clk_25mhz), .reset_in(reset), .start_timer_in(start_timer),.value_in(time_value_output), 
+	    .counting_out(counting),.expired_pulse_out(expired_pulse), .one_hz_out(one_hz), .count_out(count));
+    
+    //Fuel Pump FSM:
+    fuel_pump_logic fuel1(.clock_in(clk_25mhz), .reset_in(reset), .ignition_in(ig_switch), .hidden_sw_in(h_switch), .brake_in(br_switch),
+        .fuel_pump_led_out(fuel_pump_led));
+    
+    //Anti Theft FSM:
+    anti_theft_fsm main_fsm (.clock_in(clk_25mhz),.reset_in(reset),.reprogram_in(reprogram),.ignition_in(ig_switch),.driver_in(dr_switch),.passenger_in(p_switch),.time_expired_in(expired_pulse),
+        .interval_out(interval),.state_out(state),.start_timer_out(start_timer),.alarm_out(alarm),.status_out(status));  
+        
+   //Audio Generator:
+    siren_generator #(.HIGH_FREQ(HIGH_FREQ), .LOW_FREQ(LOW_FREQ), .ONE_HZ(ONE_HZ_PERIOD)) wave_gen(.clock_in(clk_25mhz), .reset_in(reset), .alarm_in(alarm), .one_hz_in(one_hz),
+        .wave_out(audio_signal));
+	
+	//Multiplexer
+	multiplexer #(.LED_INTERVAL(2)) multi(.clock_in(clk_25mhz), .reset_in(reset), .led_status_in(status), .one_hz_in(one_hz),.state_in(state),
+	   .led_out(status_light));
+	
+	//Seven Segment Display 
+	seven_seg_controller seven_seg(.clk_in(clk_25mhz), .rst_in(reset), .val_in(data), 
+	   .cat_out(cat), .an_out(an));
+	
+	//Display Driver
+	display_driver display(.clock_in(clk_25mhz), .reset_in(reset), .state_in(state),
+	   .vga_r_out(vga_r), .vga_b_out(vga_b), .vga_g_out(vga_g), .vga_hs_out(vga_hs), .vga_vs_out(vga_vs));
+	   
+	assign data = {{1'b0, state},12'h0,count, 4'h0,{2'b0, time_param}, time_value};
+	always_comb begin
+	   ca = cat[0];
+	   cb = cat[1];
+	   cc = cat[2];
+	   cd = cat[3];
+	   ce = cat[4];
+	   cf = cat[5];
+	   cg = cat[6];
+	   ja = audio_signal;
+	   led[0] = status_light;
+	   led[1] = fuel_pump_led;
+	end 
+endmodule //top_level
+`default_nettype wire

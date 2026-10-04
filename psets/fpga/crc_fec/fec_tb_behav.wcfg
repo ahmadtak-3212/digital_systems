@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="fec_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="fec_tb" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="607001fs"></ZoomEndTime>
+      <Cursor1Time time="598742fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="186"></NameColumnWidth>
+      <ValueColumnWidth column_width="206"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="16" />
+   <wvobject fp_name="/fec_tb/clock" type="logic">
+      <obj_property name="ElementShortName">clock</obj_property>
+      <obj_property name="ObjectShortName">clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/data_clk" type="logic">
+      <obj_property name="ElementShortName">data_clk</obj_property>
+      <obj_property name="ObjectShortName">data_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/start" type="logic">
+      <obj_property name="ElementShortName">start</obj_property>
+      <obj_property name="ObjectShortName">start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/data" type="logic">
+      <obj_property name="ElementShortName">data</obj_property>
+      <obj_property name="ObjectShortName">data</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/done" type="logic">
+      <obj_property name="ElementShortName">done</obj_property>
+      <obj_property name="ObjectShortName">done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/fec" type="array">
+      <obj_property name="ElementShortName">fec[95:0]</obj_property>
+      <obj_property name="ObjectShortName">fec[95:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/input_data" type="array">
+      <obj_property name="ElementShortName">input_data[47:0]</obj_property>
+      <obj_property name="ObjectShortName">input_data[47:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/i" type="array">
+      <obj_property name="ElementShortName">i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/uut/clock_in" type="logic">
+      <obj_property name="ElementShortName">clock_in</obj_property>
+      <obj_property name="ObjectShortName">clock_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/uut/start_in" type="logic">
+      <obj_property name="ElementShortName">start_in</obj_property>
+      <obj_property name="ObjectShortName">start_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/uut/data_in" type="logic">
+      <obj_property name="ElementShortName">data_in</obj_property>
+      <obj_property name="ObjectShortName">data_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/uut/done_out" type="logic">
+      <obj_property name="ElementShortName">done_out</obj_property>
+      <obj_property name="ObjectShortName">done_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/uut/fec_out" type="array">
+      <obj_property name="ElementShortName">fec_out[95:0]</obj_property>
+      <obj_property name="ObjectShortName">fec_out[95:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/uut/x" type="array">
+      <obj_property name="ElementShortName">x[2:0]</obj_property>
+      <obj_property name="ObjectShortName">x[2:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/uut/index" type="array">
+      <obj_property name="ElementShortName">index[6:0]</obj_property>
+      <obj_property name="ObjectShortName">index[6:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/fec_tb/uut/MAX" type="array">
+      <obj_property name="ElementShortName">MAX[31:0]</obj_property>
+      <obj_property name="ObjectShortName">MAX[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+</wave_config>

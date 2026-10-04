@@ -1,0 +1,92 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 09/20/2021 03:58:58 PM
+// Design Name: 
+// Module Name: top_level
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module top_level(
+    input wire [15:0] sw,
+    input wire btnd,
+    input wire btnc,
+    input wire btnu,
+    input wire btnl,
+    input wire clk_100mhz,
+    output logic ca, cb, cc, cd, ce, cf, cg,
+    output logic [7:0] an 
+    );
+        
+    logic [6:0] temp_cat_out;
+    logic clean;
+
+    logic [15:0] sw_10hz;
+    logic [15:0] sw_count;
+    logic [15:0] sw_out;
+   
+    logic old_clean;
+    logic rising_clean;
+    
+    parameter PERIOD = 32'd10_000_000;
+    logic[31:0] periodic_counter; //32 bits is more than sufficient!
+    logic pulse;
+    
+    assign rising_clean = clean & !old_clean;
+    
+    always_ff @(posedge clk_100mhz) begin
+        if (btnd) begin
+            old_clean <= 1'b0;
+        end else begin
+            old_clean <= clean;
+        end
+    end
+    
+    
+    
+    assign pulse = (periodic_counter == PERIOD-1);
+    
+    always_ff @(posedge clk_100mhz) begin
+        if (btnd) begin
+            periodic_counter <= 32'b0;
+        end else begin
+            if (periodic_counter == PERIOD-1)begin
+                periodic_counter <= 32'b0;
+            end else begin
+                periodic_counter <= periodic_counter + 32'b1;
+            end
+        end
+    end
+    
+    debounce deb (.clk_in(clk_100mhz), .rst_in(btnd), .bouncey_in(btnu), .clean_out(clean));
+    
+    simple_counter sc1(.clk_in(clk_100mhz), .rst_in(btnd), .evt_in(pulse), .count_out(sw_10hz));
+    
+    simple_counter sc2(.clk_in(clk_100mhz), .rst_in(btnd), .evt_in(rising_clean), .count_out(sw_count));
+    
+    multiplexer mu(.in_sw(sw), .in_count(sw_count), .in_10hz(sw_10hz), .in_btnc(btnc), .in_btnl(btnl), .out_val(sw_out));
+    
+    
+    seven_seg_controller ssc(.val_in(sw_out), .rst_in(btnd), .clk_in(clk_100mhz), .cat_out(temp_cat_out), .an_out(an));
+    assign ca = temp_cat_out[0];
+    assign cb = temp_cat_out[1];
+    assign cc = temp_cat_out[2];
+    assign cd = temp_cat_out[3];
+    assign ce = temp_cat_out[4];
+    assign cf = temp_cat_out[5];
+    assign cg = temp_cat_out[6];
+    
+endmodule
